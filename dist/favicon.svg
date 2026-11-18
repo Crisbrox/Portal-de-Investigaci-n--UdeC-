@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <path d="M32 3L58 13v22c0 15.5-10.8 24.4-26 29C16.8 59.4 6 50.5 6 35V13L32 3z" fill="#00482B"/>
-  <path d="M32 8L53 16v19c0 12.7-8.8 20.2-21 24.2C19.8 55.2 11 47.7 11 35V16L32 8z" fill="#007A3D"/>
-  <path d="M11 24h42v4H11z" fill="#D4AF37" opacity="0.9"/>
-  <text x="32" y="45" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="17" font-weight="800" fill="#FFFFFF">UdeC</text>
-</svg>

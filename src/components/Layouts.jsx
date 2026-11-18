@@ -45,9 +45,9 @@ const iniciales = (nombre) =>
 function Footer() {
   return (
     <footer className="mt-auto">
-      {/* Sellos institucionales y equipo de desarrollo (franja clara: las imágenes tienen fondo blanco) */}
-      <div className="border-t-4 border-oro-500 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:grid-cols-2 lg:px-6">
+      {/* Sellos institucionales y equipo de desarrollo (PNG con fondo transparente) */}
+      <div className="grano border-t-4 border-oro-500 bg-udec-950">
+        <div className="mx-auto grid max-w-7xl gap-10 border-b border-white/10 px-4 py-10 sm:grid-cols-2 lg:px-6">
           {SELLOS.map((s, i) => (
             <motion.figure
               key={s.src}
@@ -64,12 +64,12 @@ function Footer() {
                   loading="lazy"
                   whileHover={{ scale: 1.08, rotate: i ? 4 : -4 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                  className="h-28 w-28 object-contain"
+                  className="h-28 w-28 object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.35)]"
                 />
-                <figcaption className="max-w-[12rem] text-sm font-semibold leading-snug text-udec-900">{s.texto}</figcaption>
+                <figcaption className="max-w-[12rem] font-serif text-base font-semibold leading-snug text-white">{s.texto}</figcaption>
               </div>
 
-              <p className="antetitulo mt-5">Desarrollado por</p>
+              <p className="antetitulo mt-5 !text-oro-400">Desarrollado por</p>
               <ul className={`mt-3 flex flex-col gap-2.5 ${i ? 'sm:items-end' : 'sm:items-start'}`}>
                 {s.equipo.map((n, k) => (
                   <motion.li
@@ -80,10 +80,10 @@ function Footer() {
                     transition={{ duration: 0.5, delay: 0.25 + k * 0.1, ease: EASE }}
                     className={`group flex items-center gap-2.5 ${i ? 'sm:flex-row-reverse' : ''}`}
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-udec-900 font-serif text-sm font-semibold text-white ring-2 ring-oro-400/60 transition-transform duration-300 group-hover:scale-110">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-udec-700 font-serif text-sm font-semibold text-white ring-2 ring-oro-400/70 transition-transform duration-300 group-hover:scale-110">
                       {iniciales(n)}
                     </span>
-                    <span className="text-sm font-semibold text-slate-800">{n}</span>
+                    <span className="text-sm font-semibold text-white/90">{n}</span>
                   </motion.li>
                 ))}
               </ul>
