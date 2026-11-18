@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/:ruta*", "destination": "https://back-udec.vercel.app/api/:ruta*" },
+    { "source": "/uploads/:ruta*", "destination": "https://back-udec.vercel.app/uploads/:ruta*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
