@@ -16,12 +16,23 @@ import { irArriba } from './efectos';
 
 const SEDES = ['Fusagasugá', 'Chía', 'Facatativá', 'Girardot', 'Soacha', 'Ubaté', 'Zipaquirá'];
 
+/** Sellos del pie de página, cada uno con las personas del equipo que aparecen debajo. */
 const SELLOS = [
-  { src: '/img/acreditacion-alta-calidad.png', alt: 'Acreditación Institucional de Alta Calidad - Universidad de Cundinamarca', texto: 'Acreditación Institucional de Alta Calidad' },
-  { src: '/img/centenario-roque.png', alt: 'Cien años Tecnológico de Roque 1926-2026', texto: '100 años Tecnológico de Roque · 1926-2026' },
+  {
+    src: '/img/acreditacion-alta-calidad.png',
+    alt: 'Acreditación Institucional de Alta Calidad - Universidad de Cundinamarca',
+    texto: 'Acreditación Institucional de Alta Calidad',
+    equipo: ['Cristhian Mateo Ramirez'],
+  },
+  {
+    src: '/img/centenario-roque.png',
+    alt: 'Cien años Tecnológico de Roque 1926-2026',
+    texto: '100 años Tecnológico de Roque · 1926-2026',
+    equipo: ['Gabriela Sarai Garcia Serrano', 'Vanessa Yañez Mejia'],
+  },
 ];
 
-const EQUIPO = ['Cristhian Mateo Ramirez', 'Vanessa Yañez Mejia', 'Gabriela Sarai Garcia Serrano'];
+const EQUIPO = SELLOS.flatMap((s) => s.equipo);
 
 const iniciales = (nombre) =>
   nombre
@@ -36,44 +47,48 @@ function Footer() {
     <footer className="mt-auto">
       {/* Sellos institucionales y equipo de desarrollo (franja clara: las imágenes tienen fondo blanco) */}
       <div className="border-t-4 border-oro-500 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-8 px-4 py-8 lg:px-6">
-          <div className="flex flex-wrap items-center gap-8">
-            {SELLOS.map((s, i) => (
-              <motion.figure
-                key={s.src}
-                initial={{ opacity: 0, y: 16, rotate: -6 }}
-                whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.12, ease: EASE }}
-                whileHover={{ scale: 1.06, rotate: i ? 3 : -3 }}
-                className="flex items-center gap-3"
-              >
-                <img src={s.src} alt={s.alt} loading="lazy" className="h-24 w-24 object-contain" />
-                <figcaption className="max-w-[11rem] text-sm font-semibold leading-snug text-udec-900">{s.texto}</figcaption>
-              </motion.figure>
-            ))}
-          </div>
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:grid-cols-2 lg:px-6">
+          {SELLOS.map((s, i) => (
+            <motion.figure
+              key={s.src}
+              initial={{ opacity: 0, x: i ? 30 : -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: EASE }}
+              className={`flex flex-col items-center text-center ${i ? 'sm:items-end sm:text-right' : 'sm:items-start sm:text-left'}`}
+            >
+              <div className={`flex items-center gap-4 ${i ? 'sm:flex-row-reverse' : ''}`}>
+                <motion.img
+                  src={s.src}
+                  alt={s.alt}
+                  loading="lazy"
+                  whileHover={{ scale: 1.08, rotate: i ? 4 : -4 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                  className="h-28 w-28 object-contain"
+                />
+                <figcaption className="max-w-[12rem] text-sm font-semibold leading-snug text-udec-900">{s.texto}</figcaption>
+              </div>
 
-          <div>
-            <p className="antetitulo">Desarrollado por</p>
-            <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-3">
-              {EQUIPO.map((n, i) => (
-                <motion.li
-                  key={n}
-                  initial={{ opacity: 0, x: 12 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.15 + i * 0.1, ease: EASE }}
-                  className="group flex items-center gap-2.5"
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-udec-900 font-serif text-sm font-semibold text-white ring-2 ring-oro-400/60 transition-transform duration-300 group-hover:scale-110">
-                    {iniciales(n)}
-                  </span>
-                  <span className="text-sm font-semibold text-slate-800">{n}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </div>
+              <p className="antetitulo mt-5">Desarrollado por</p>
+              <ul className={`mt-3 flex flex-col gap-2.5 ${i ? 'sm:items-end' : 'sm:items-start'}`}>
+                {s.equipo.map((n, k) => (
+                  <motion.li
+                    key={n}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.25 + k * 0.1, ease: EASE }}
+                    className={`group flex items-center gap-2.5 ${i ? 'sm:flex-row-reverse' : ''}`}
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-udec-900 font-serif text-sm font-semibold text-white ring-2 ring-oro-400/60 transition-transform duration-300 group-hover:scale-110">
+                      {iniciales(n)}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-800">{n}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.figure>
+          ))}
         </div>
       </div>
 
