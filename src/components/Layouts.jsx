@@ -182,4 +182,77 @@ export function PanelLayout() {
       <div className="hidden lg:block">
         <div className="sticky top-0 h-screen">
           <Sidebar />
-  
+        </div>
+      </div>
+
+      {/* Sidebar móvil */}
+      <AnimatePresence>
+        {movilAbierto && (
+          <motion.div key="cajon" className="fixed inset-0 z-50 lg:hidden" exit={{ opacity: 1 }}>
+            <motion.div
+              className="absolute inset-0 bg-black/50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMovilAbierto(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              className="absolute inset-y-0 left-0 w-80 max-w-[86vw] shadow-2xl"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+            >
+              <Sidebar movil onNavigate={() => setMovilAbierto(false)} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Barra superior del workspace */}
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-borde bg-white/90 px-4 py-3 backdrop-blur lg:px-6">
+          <button
+            className="rounded-lg border border-borde p-2 text-udec-900 lg:hidden"
+            onClick={() => setMovilAbierto(true)}
+            aria-label="Abrir menú del panel"
+          >
+            <Menu size={20} />
+          </button>
+
+          <nav className="flex items-center gap-1 overflow-x-auto text-sm">
+            <NavLink
+              to="/"
+              className="group inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium text-slate-500 transition hover:bg-udec-50 hover:text-udec-900"
+            >
+              <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-1" />
+              Ver sitio público
+            </NavLink>
+            <NavLink
+              to="/vitrina"
+              className="hidden rounded-md px-3 py-1.5 font-medium text-slate-500 transition hover:bg-udec-50 hover:text-udec-900 sm:block"
+            >
+              Vitrina
+            </NavLink>
+            <NavLink
+              to="/estadisticas"
+              className="hidden rounded-md px-3 py-1.5 font-medium text-slate-500 transition hover:bg-udec-50 hover:text-udec-900 sm:block"
+            >
+              Indicadores
+            </NavLink>
+          </nav>
+
+          <Link to={accion.to} className="btn-primary group !py-2 text-xs">
+            <Plus size={15} className="transition-transform duration-300 group-hover:rotate-90" />
+            {accion.texto}
+          </Link>
+        </header>
+
+        <main className="flex-1 px-4 py-6 lg:px-8">
+          <SalidaAnimada />
+        </main>
+      </div>
+    </div>
+  );
+}
