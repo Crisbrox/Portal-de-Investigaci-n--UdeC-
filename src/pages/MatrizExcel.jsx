@@ -6,10 +6,13 @@ import { useEffect, useRef, useState } from 'react';
 import { CalendarRange, Download, FileSpreadsheet, FileText, Table2, Upload } from 'lucide-react';
 import api, { msgError } from '../services/api';
 import Toast from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 
 export default function MatrizExcel() {
+  // Admin: matriz completa. Investigador: sube y descarga solo su producción (siempre en modo agregar).
+  const { esAdmin } = useAuth();
   const [archivo, setArchivo] = useState(null);
-  const [modo, setModo] = useState('reemplazar');
+  const [modo, setModo] = useState(esAdmin ? 'reemplazar' : 'agregar');
   const [importando, setImportando] = useState(false);
   const [resultado, setResultado] = useState(null);
   const [estado, setEstado] = useState(null);
@@ -81,17 +84,22 @@ export default function MatrizExcel() {
   return (
     <div className="mx-auto max-w-5xl">
       <div>
-        <p className="antetitulo">
-          Administración
-        </p>
+        <p className="antetitulo">{esAdmin ? 'Administración' : 'Mi producción científica'}</p>
         <h1 className="mt-1 text-2xl font-semibold text-udec-900 md:text-3xl">
-          Importar / Exportar Matriz Excel
+          {esAdmin ? 'Importar / Exportar Matriz Excel' : 'Subir mi matriz en Excel'}
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-500">
-          Carga masiva desde <b>Matriz producción científica arreglada.xlsx</b> (hoja{' '}
+          Carga masiva desde la matriz de producción científica (hoja{' '}
           <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs">matriz</code>) con mapeo
-          automático de las 31 columnas, o descarga la matriz actualizada con 3 hojas.
+          automático de las 31 columnas, o descarga {esAdmin ? 'la matriz actualizada' : 'tus productos'} con 3 hojas.
         </p>
+        {!esAdmin && (
+          <p className="mt-3 max-w-2xl rounded border border-udec-500/40 bg-udec-50 px-4 py-3 text-sm text-udec-900">
+            Todo lo que importes queda <b>a tu nombre</b> y en estado <b>Parcial</b>, pendiente de la
+            auditoría. Se omiten los productos que ya tienes registrados (mismo nombre, año y tipología) y
+            nunca se modifican los de otras personas.
+          </p>
+        )}
       </div>
 
       {/* Estado actual */}
@@ -171,48 +179,50 @@ export default function MatrizExcel() {
             )}
           </div>
 
-          {/* Modo */}
-          <div className="mt-4">
-            <p className="campo-label">Modo de importación</p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <label
-                className={`cursor-pointer rounded-lg border p-3 text-xs transition ${
-                  modo === 'reemplazar'
-                    ? 'border-udec-700 bg-udec-50 ring-2 ring-udec-100'
-                    : 'border-borde hover:border-udec-500'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="modo"
-                  value="reemplazar"
-                  checked={modo === 'reemplazar'}
-                  onChange={(e) => setModo(e.target.value)}
-                  className="mr-2 accent-udec-900"
-                />
-                <b className="text-udec-900">Reemplazar todo</b>
-                <p className="mt-1 text-slate-500">Borra los registros actuales e importa el archivo.</p>
-              </label>
-              <label
-                className={`cursor-pointer rounded-lg border p-3 text-xs transition ${
-                  modo === 'agregar'
-                    ? 'border-udec-700 bg-udec-50 ring-2 ring-udec-100'
-                    : 'border-borde hover:border-udec-500'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="modo"
-                  value="agregar"
-                  checked={modo === 'agregar'}
-                  onChange={(e) => setModo(e.target.value)}
-                  className="mr-2 accent-udec-900"
-                />
-                <b className="text-udec-900">Agregar nuevos registros</b>
-                <p className="mt-1 text-slate-500">Omite duplicados por nombre + año + tipología.</p>
-              </label>
+          {/* Modo (solo el administrador puede reemplazar la matriz completa) */}
+          {esAdmin && (
+            <div className="mt-4">
+              <p className="campo-label">Modo de importación</p>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <label
+                  className={`cursor-pointer rounded-lg border p-3 text-xs transition ${
+                    modo === 'reemplazar'
+                      ? 'border-udec-700 bg-udec-50 ring-2 ring-udec-100'
+                      : 'border-borde hover:border-udec-500'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="modo"
+                    value="reemplazar"
+                    checked={modo === 'reemplazar'}
+                    onChange={(e) => setModo(e.target.value)}
+                    className="mr-2 accent-udec-900"
+                  />
+                  <b className="text-udec-900">Reemplazar todo</b>
+                  <p className="mt-1 text-slate-500">Borra los registros actuales e importa el archivo.</p>
+                </label>
+                <label
+                  className={`cursor-pointer rounded-lg border p-3 text-xs transition ${
+                    modo === 'agregar'
+                      ? 'border-udec-700 bg-udec-50 ring-2 ring-udec-100'
+                      : 'border-borde hover:border-udec-500'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="modo"
+                    value="agregar"
+                    checked={modo === 'agregar'}
+                    onChange={(e) => setModo(e.target.value)}
+                    className="mr-2 accent-udec-900"
+                  />
+                  <b className="text-udec-900">Agregar nuevos registros</b>
+                  <p className="mt-1 text-slate-500">Omite duplicados por nombre + año + tipología.</p>
+                </label>
+              </div>
             </div>
-          </div>
+          )}
 
           <button
             onClick={importar}
@@ -279,7 +289,7 @@ export default function MatrizExcel() {
             </span>
             <div>
               <h2 className="text-base font-semibold text-udec-900">
-                Exportar matriz actualizada (.xlsx)
+                {esAdmin ? 'Exportar matriz actualizada (.xlsx)' : 'Descargar mis productos (.xlsx)'}
               </h2>
               <p className="text-[11px] text-slate-500">
                 Descarga generada desde la base de datos

@@ -71,9 +71,9 @@ const ACCESOS = [
   {
     to: '/panel/isu/matriz',
     titulo: 'Matriz ISU (Excel)',
-    texto: 'Importa y exporta la matriz de convocatorias e informes ISU.',
+    texto: 'Sube tu matriz de convocatorias e informes ISU; los proyectos quedan a tu nombre.',
     Icono: Sheet,
-    roles: [],
+    roles: ['ISU'],
   },
   {
     to: '/panel/auditoria',
@@ -91,10 +91,10 @@ const ACCESOS = [
   },
   {
     to: '/panel/matriz-excel',
-    titulo: 'Importar / Exportar Matriz Excel',
-    texto: 'Carga masiva desde .xlsx y descarga la matriz con 3 hojas.',
+    titulo: 'Matriz de investigación (Excel)',
+    texto: 'Sube tu matriz .xlsx (queda a tu nombre) y descarga tus productos con 3 hojas.',
     Icono: BarChart3,
-    roles: [],
+    roles: ['INVESTIGADOR'],
   },
 ];
 

@@ -3,7 +3,7 @@
  *
  * Público:  / | /tienda | /vitrina | /repositorio | /isu | /estadisticas | /acceso
  * Panel:    /panel (+ subrutas protegidas)
- * Admin:    /panel/auditoria | /panel/matriz-excel | /panel/usuarios
+ * Admin:    /panel/auditoria | /panel/usuarios (matriz-excel e isu/matriz también para su rol)
  * Por rol:  investigador → producción científica · emprendedor → emprendimientos y mi tienda
  *           ISU → proyectos de Interacción Social Universitaria y sus entregables
  */
@@ -90,8 +90,9 @@ export default function App() {
             {/* Solo Admin */}
             <Route path="auditoria" element={soloAdmin(<Auditoria />)} />
             <Route path="usuarios" element={soloAdmin(<Usuarios />)} />
-            <Route path="matriz-excel" element={soloAdmin(<MatrizExcel />)} />
-            <Route path="isu/matriz" element={soloAdmin(<IsuMatriz />)} />
+            {/* Excel: el admin trabaja la matriz completa; investigador y líder ISU, solo lo suyo */}
+            <Route path="matriz-excel" element={conRol(INVESTIGACION, <MatrizExcel />)} />
+            <Route path="isu/matriz" element={conRol(ISU, <IsuMatriz />)} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -46,6 +46,7 @@ const grupos = (esAdmin) => [
     items: [
       { to: '/panel/mis-productos', texto: esAdmin ? 'Productos de investigación' : 'Mis productos', Icono: FileText },
       { to: '/panel/registrar-producto', texto: 'Registrar producto', Icono: FilePlus2 },
+      { to: '/panel/matriz-excel', texto: esAdmin ? 'Matriz de investigación (Excel)' : 'Subir mi Excel', Icono: FileSpreadsheet },
     ],
   },
   {
@@ -61,7 +62,10 @@ const grupos = (esAdmin) => [
     id: 'isu',
     titulo: 'Interacción Social',
     roles: ['ISU'],
-    items: [{ to: '/panel/isu', texto: esAdmin ? 'Seguimiento ISU' : 'Mis proyectos ISU', Icono: Users2, fin: true }],
+    items: [
+      { to: '/panel/isu', texto: esAdmin ? 'Seguimiento ISU' : 'Mis proyectos ISU', Icono: Users2, fin: true },
+      { to: '/panel/isu/matriz', texto: esAdmin ? 'Matriz ISU (Excel)' : 'Subir mi Excel ISU', Icono: Sheet },
+    ],
   },
   {
     id: 'admin',
@@ -69,8 +73,6 @@ const grupos = (esAdmin) => [
     soloAdmin: true,
     items: [
       { to: '/panel/auditoria', texto: 'Auditoría y validación', Icono: ClipboardCheck },
-      { to: '/panel/matriz-excel', texto: 'Matriz de investigación', Icono: FileSpreadsheet },
-      { to: '/panel/isu/matriz', texto: 'Matriz ISU', Icono: Sheet },
       { to: '/panel/usuarios', texto: 'Usuarios', Icono: Users },
     ],
   },
