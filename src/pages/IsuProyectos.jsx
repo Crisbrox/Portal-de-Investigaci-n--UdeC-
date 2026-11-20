@@ -179,7 +179,7 @@ function FormProyecto({ inicial, periodos, responsables, esAdmin, onGuardar, onC
 }
 
 /** Un entregable: estado, evidencia, carga (líder) y revisión (admin). */
-function Entregable({ p, e, esAdmin, revision, setRevision, onSubir }) {
+function Entregable({ p, e, esAdmin, revision, setRevision, onSubir, onQuitar }) {
   const estado = p[`${e.clave}_estado`];
   const evidencia = p[`${e.clave}_evidencia`];
   const [modo, setModo] = useState(e.clave === 'video' ? 'enlace' : 'archivo');
@@ -228,6 +228,15 @@ function Entregable({ p, e, esAdmin, revision, setRevision, onSubir }) {
           <span className="truncate">{esEnlace(evidencia) ? evidencia : evidencia.split('/').pop()}</span>
         </a>
       )}
+      {evidencia && (
+        <button
+          type="button"
+          onClick={() => onQuitar(e)}
+          className="mt-1 flex items-center gap-1 text-xs text-slate-500 transition-colors hover:text-red-700"
+        >
+          <Trash2 size={12} /> Quitar entregable
+        </button>
+      )}
 
       {!bloqueado && (
         <div className="mt-3 border-t border-borde pt-3">
@@ -274,7 +283,7 @@ function Entregable({ p, e, esAdmin, revision, setRevision, onSubir }) {
   );
 }
 
-function Detalle({ id, esAdmin, onCerrar, onEditar, onCambio, setToast }) {
+function Detalle({ id, esAdmin, onCerrar, onEditar, onCambio, onEliminar, setToast }) {
   const [p, setP] = useState(null);
   const [revision, setRevision] = useState({});
   const [guardando, setGuardando] = useState(false);
@@ -295,6 +304,18 @@ function Detalle({ id, esAdmin, onCerrar, onEditar, onCambio, setToast }) {
     if (enlace) fd.append('enlace', enlace);
     try {
       const { data } = await api.post(`/isu/proyectos/${id}/entregas/${tipo}`, fd, { timeout: 300000 });
+      setP(data.proyecto);
+      setToast({ tipo: 'success', mensaje: data.mensaje });
+      onCambio(data.proyecto);
+    } catch (err) {
+      setToast({ tipo: 'error', mensaje: msgError(err) });
+    }
+  };
+
+  const quitar = async (e) => {
+    if (!window.confirm(`¿Quitar el ${e.etiqueta.toLowerCase()} entregado? Volverá a quedar pendiente.`)) return;
+    try {
+      const { data } = await api.delete(`/isu/proyectos/${id}/entregas/${e.clave}`);
       setP(data.proyecto);
       setToast({ tipo: 'success', mensaje: data.mensaje });
       onCambio(data.proyecto);
@@ -348,9 +369,17 @@ function Detalle({ id, esAdmin, onCerrar, onEditar, onCambio, setToast }) {
                   <X size={20} />
                 </button>
               </div>
-              <button onClick={() => onEditar(p)} className="enlace mt-2 text-sm">
-                <Pencil size={14} /> Editar datos
-              </button>
+              <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1">
+                <button onClick={() => onEditar(p)} className="enlace text-sm">
+                  <Pencil size={14} /> Editar datos
+                </button>
+                <button
+                  onClick={() => onEliminar(p)}
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 hover:text-red-800"
+                >
+                  <Trash2 size={14} /> Eliminar proyecto
+                </button>
+              </div>
             </div>
 
             <div className="space-y-6 p-6">
@@ -381,7 +410,7 @@ function Detalle({ id, esAdmin, onCerrar, onEditar, onCambio, setToast }) {
                 <h3 className="font-serif text-lg font-semibold text-udec-900">Entregables</h3>
                 <ul className="mt-3 grid gap-3 sm:grid-cols-2">
                   {ENTREGABLES.map((e) => (
-                    <Entregable key={e.clave} p={p} e={e} esAdmin={esAdmin} revision={revision} setRevision={setRevision} onSubir={subir} />
+                    <Entregable key={e.clave} p={p} e={e} esAdmin={esAdmin} revision={revision} setRevision={setRevision} onSubir={subir} onQuitar={quitar} />
                   ))}
                 </ul>
               </section>
@@ -507,14 +536,20 @@ export default function IsuProyectos() {
     cargar();
   };
 
+  /** Devuelve true si se eliminó (para cerrar el detalle). */
   const eliminar = async (p) => {
-    if (!window.confirm(`¿Eliminar el proyecto "${p.nombre}"? Esta acción no se puede deshacer.`)) return;
+    if (!window.confirm(`¿Eliminar el proyecto "${p.nombre}" con todos sus entregables? Esta acción no se puede deshacer.`)) {
+      return false;
+    }
     try {
       const { data } = await api.delete(`/isu/proyectos/${p.id}`);
       setToast({ tipo: 'success', mensaje: data.mensaje });
       cargar();
+      cargarPeriodos().catch(() => {});
+      return true;
     } catch (err) {
       setToast({ tipo: 'error', mensaje: msgError(err) });
+      return false;
     }
   };
 
@@ -661,7 +696,7 @@ export default function IsuProyectos() {
                         {e.corta}
                       </span>
                     ))}
-                    {esAdmin && (
+                    {(esAdmin || p.user_id === usuario?.id) && (
                       <button onClick={() => eliminar(p)} className="ml-1 rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-700" aria-label={`Eliminar ${p.nombre}`}>
                         <Trash2 size={15} />
                       </button>
@@ -704,6 +739,9 @@ export default function IsuProyectos() {
               setFormulario(p);
             }}
             onCambio={(p) => setProyectos((lista) => lista?.map((x) => (x.id === p.id ? p : x)))}
+            onEliminar={async (p) => {
+              if (await eliminar(p)) setDetalle(null);
+            }}
           />
         )}
         {formulario && (

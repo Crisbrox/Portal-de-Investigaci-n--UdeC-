@@ -13,7 +13,7 @@ import Toast from '../components/Toast';
 import FiltroAutor, { autoresDe, coincideAutor } from '../components/FiltroAutor';
 
 export default function MisProductos() {
-  const { esAdmin } = useAuth();
+  const { esAdmin, usuario } = useAuth();
   const navigate = useNavigate();
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -172,7 +172,8 @@ export default function MisProductos() {
                       Editar
                     </button>
                   ) : null}
-                  {(editables(p) || esAdmin) && (
+                  {/* Quien registró el producto puede eliminarlo en cualquier estado; el admin, cualquiera */}
+                  {(esAdmin || p.user_id === usuario?.id) && (
                     <button
                       onClick={() => eliminar(p)}
                       className="rounded-lg border border-red-200 px-3.5 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50"

@@ -6,8 +6,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, MapPin, ShoppingBag, Sprout, X } from 'lucide-react';
+import { ArrowRight, MapPin, ShoppingBag, Sprout, Trash2, X } from 'lucide-react';
 import api, { msgError } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import EncabezadoPagina from '../components/EncabezadoPagina';
 import { EASE, TarjetaLuz } from '../components/motion';
 import { SEDES, SECTORES, ETAPAS } from '../constants/catalogos';
@@ -92,7 +93,7 @@ function TarjetaEmprendimiento({ emp, onAbrir }) {
   );
 }
 
-function Modal({ emp, onCerrar }) {
+function Modal({ emp, onCerrar, onEliminar }) {
   const galeria = Array.isArray(emp.imagenes_galeria) ? emp.imagenes_galeria : [];
 
   return (
@@ -201,6 +202,16 @@ function Modal({ emp, onCerrar }) {
             </Link>
           )}
 
+          {/* Dueño del emprendimiento o administrador */}
+          {onEliminar && (
+            <button
+              onClick={() => onEliminar(emp)}
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-red-600 hover:text-red-800"
+            >
+              <Trash2 size={15} /> Eliminar este emprendimiento
+            </button>
+          )}
+
           {/* Contacto directo */}
           <section className="mt-6">
             <h3 className="mb-3 font-serif text-base font-semibold text-udec-900">
@@ -265,6 +276,26 @@ export default function VitrinaEmprendimientos() {
   const [sector, setSector] = useState('');
   const [etapa, setEtapa] = useState('');
   const [seleccion, setSeleccion] = useState(null);
+  const { usuario, esAdmin } = useAuth();
+
+  const puedeEliminar = (emp) => esAdmin || (usuario && emp.user_id === usuario.id);
+
+  const eliminar = async (emp) => {
+    if (
+      !window.confirm(
+        `¿Eliminar "${emp.nombre_emprendimiento}"? También se eliminan sus productos de la tienda. Esta acción no se puede deshacer.`
+      )
+    ) {
+      return;
+    }
+    try {
+      await api.delete(`/emprendimientos/${emp.id}`);
+      setLista((l) => l.filter((x) => x.id !== emp.id));
+      setSeleccion(null);
+    } catch (e) {
+      window.alert(msgError(e));
+    }
+  };
 
   useEffect(() => {
     setCargando(true);
@@ -417,7 +448,14 @@ export default function VitrinaEmprendimientos() {
       </section>
 
       <AnimatePresence>
-        {seleccion && <Modal key={seleccion.id} emp={seleccion} onCerrar={() => setSeleccion(null)} />}
+        {seleccion && (
+          <Modal
+            key={seleccion.id}
+            emp={seleccion}
+            onCerrar={() => setSeleccion(null)}
+            onEliminar={puedeEliminar(seleccion) ? eliminar : null}
+          />
+        )}
       </AnimatePresence>
     </div>
   );

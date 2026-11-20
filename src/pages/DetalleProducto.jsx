@@ -50,6 +50,16 @@ export default function DetalleProducto() {
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
   const [modalValidar, setModalValidar] = useState(false);
+
+  const eliminar = async () => {
+    if (!window.confirm(`¿Eliminar el producto "${producto.nombre_producto}"? Esta acción no se puede deshacer.`)) return;
+    try {
+      await api.delete(`/investigacion/${producto.id}`);
+      navigate('/panel/mis-productos', { replace: true });
+    } catch (e) {
+      setToast({ tipo: 'error', mensaje: msgError(e) });
+    }
+  };
   const [formValidar, setFormValidar] = useState({ estado_evidencia: '', observaciones_validacion: '' });
 
   useEffect(() => {
@@ -132,6 +142,14 @@ export default function DetalleProducto() {
             >
               Editar
             </Link>
+          )}
+          {(esAdmin || producto.user_id === usuario?.id) && (
+            <button
+              onClick={eliminar}
+              className="rounded border border-red-200 px-3.5 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+            >
+              Eliminar
+            </button>
           )}
           {esAdmin && (
             <button

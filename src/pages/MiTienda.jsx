@@ -230,6 +230,24 @@ export default function MiTienda() {
   const delActivo = productos.filter((p) => p.emprendimiento_id === activo);
   const emp = emprendimientos?.find((e) => e.id === activo);
 
+  const eliminarEmprendimiento = async () => {
+    if (
+      !window.confirm(
+        `¿Eliminar "${emp.nombre_emprendimiento}" de la vitrina? También se eliminan sus ${delActivo.length} productos de la tienda. Esta acción no se puede deshacer.`
+      )
+    ) {
+      return;
+    }
+    try {
+      const { data } = await api.delete(`/emprendimientos/${emp.id}`);
+      setToast({ tipo: 'success', mensaje: data.mensaje });
+      setActivo(null);
+      cargar();
+    } catch (err) {
+      setToast({ tipo: 'error', mensaje: msgError(err) });
+    }
+  };
+
   const alternar = async (p) => {
     try {
       const { data } = await api.patch(`/tienda/productos/${p.id}/disponible`, { disponible: !p.disponible });
@@ -297,6 +315,20 @@ export default function MiTienda() {
           </button>
         </div>
       </div>
+
+      {emp && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-borde bg-white px-4 py-3 text-sm">
+          <span className="text-slate-600">
+            Emprendimiento: <b className="text-udec-900">{emp.nombre_emprendimiento}</b>
+          </span>
+          <button
+            onClick={eliminarEmprendimiento}
+            className="inline-flex items-center gap-1.5 font-semibold text-red-600 hover:text-red-800"
+          >
+            <Trash2 size={15} /> Eliminar emprendimiento
+          </button>
+        </div>
+      )}
 
       {!emp?.whatsapp && (
         <p className="mt-4 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">

@@ -5,12 +5,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, MapPin, Minus, Plus, Search, ShoppingBag, Store, Tag, X } from 'lucide-react';
+import { Check, MapPin, Minus, Plus, Search, ShoppingBag, Store, Tag, Trash2, X } from 'lucide-react';
 import api, { msgError } from '../services/api';
 import EncabezadoPagina from '../components/EncabezadoPagina';
 import { TarjetaLuz } from '../components/motion';
 import { SEDES, SECTORES } from '../constants/catalogos';
 import { pesos, precioFinal, useCarrito } from '../context/CarritoContext';
+import { useAuth } from '../context/AuthContext';
 
 const RANGOS = [
   ['', 'Cualquier precio'],
@@ -128,7 +129,7 @@ function TarjetaProducto({ p, onAbrir }) {
   );
 }
 
-function Detalle({ p, onCerrar }) {
+function Detalle({ p, onCerrar, onEliminar }) {
   const [cantidad, setCantidad] = useState(1);
   const tope = p.stock ?? 99;
   return (
@@ -207,6 +208,14 @@ function Detalle({ p, onCerrar }) {
             <Link to={`/tienda?emprendimiento=${p.emprendimiento_id}`} onClick={onCerrar} className="enlace mt-4 text-sm">
               <Store size={15} /> Ver más de {p.nombre_emprendimiento}
             </Link>
+            {onEliminar && (
+              <button
+                onClick={() => onEliminar(p)}
+                className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-red-600 hover:text-red-800"
+              >
+                <Trash2 size={15} /> Eliminar producto (administrador)
+              </button>
+            )}
           </div>
         </div>
       </motion.div>
@@ -218,6 +227,7 @@ export default function Tienda() {
   const [params, setParams] = useSearchParams();
   const emprendimiento = params.get('emprendimiento') || '';
   const { unidades, setAbierto } = useCarrito();
+  const { esAdmin } = useAuth();
 
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -370,7 +380,29 @@ export default function Tienda() {
         )}
       </section>
 
-      <AnimatePresence>{seleccion && <Detalle key={seleccion.id} p={seleccion} onCerrar={() => setSeleccion(null)} />}</AnimatePresence>
+      <AnimatePresence>
+        {seleccion && (
+          <Detalle
+            key={seleccion.id}
+            p={seleccion}
+            onCerrar={() => setSeleccion(null)}
+            onEliminar={
+              esAdmin
+                ? async (p) => {
+                    if (!window.confirm(`¿Eliminar "${p.nombre}" de la tienda? Esta acción no se puede deshacer.`)) return;
+                    try {
+                      await api.delete(`/tienda/productos/${p.id}`);
+                      setProductos((l) => l.filter((x) => x.id !== p.id));
+                      setSeleccion(null);
+                    } catch (e) {
+                      window.alert(msgError(e));
+                    }
+                  }
+                : null
+            }
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
